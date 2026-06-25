@@ -39,8 +39,9 @@ interface Blog {
   image?: string;
   status: "draft" | "published";
   tags?: string[];
-  author?: { firstName: string; lastName: string };
+  author?: { _id?: string; firstName?: string; lastName?: string; profileImage?: string };
   createdAt: string;
+  updatedAt?: string;
 }
 
 interface BlogResponse {
@@ -52,6 +53,8 @@ interface BlogResponse {
 export default function BlogManagement() {
   const [isOpen, setIsOpen] = useState(false);
   const [editData, setEditData] = useState<Blog | null>(null);
+  const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const [title, setTitle] = useState("");
@@ -122,6 +125,16 @@ export default function BlogManagement() {
     setTags(blog.tags?.join(", ") || "");
     setImageFile(null);
     setIsOpen(true);
+  };
+
+  const openViewModal = (blog: Blog) => {
+    setSelectedBlog(blog);
+    setIsViewOpen(true);
+  };
+
+  const formatDate = (date?: string) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleString();
   };
 
   const handleSubmit = async () => {
@@ -241,14 +254,13 @@ export default function BlogManagement() {
                 </TableCell>
                 <TableCell className="py-6 px-8">
                   <div className="flex items-center justify-center gap-3">
-                    <a
-                      href={`${process.env.NEXT_PUBLIC_FRONTEND_URL || "https://jetsetcares.org"}/blog/${blog.slug}`}
-                      target="_blank"
-                      rel="noreferrer"
+                    <button
+                      type="button"
+                      onClick={() => openViewModal(blog)}
                       className="text-slate-600 hover:text-blue-600 transition-colors"
                     >
                       <Eye className="w-5 h-5" />
-                    </a>
+                    </button>
                     <button
                       onClick={() => openEditModal(blog)}
                       className="text-slate-600 hover:text-blue-600 transition-colors"
@@ -312,6 +324,118 @@ export default function BlogManagement() {
           </div>
         </div>
       </div>
+
+      <Dialog
+        open={isViewOpen}
+        onOpenChange={(open) => {
+          setIsViewOpen(open);
+          if (!open) setSelectedBlog(null);
+        }}
+      >
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Blog Details</DialogTitle>
+          </DialogHeader>
+
+          {selectedBlog && (
+            <div className="space-y-5 pt-2 text-slate-700">
+              {selectedBlog.image && (
+                <div
+                  aria-label={selectedBlog.title}
+                  className="h-64 w-full rounded-lg bg-cover bg-center"
+                  role="img"
+                  style={{ backgroundImage: `url(${selectedBlog.image})` }}
+                />
+              )}
+
+              <div>
+                <h2 className="text-2xl font-semibold text-slate-900">
+                  {selectedBlog.title}
+                </h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  Slug: {selectedBlog.slug}
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 text-sm">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Status</p>
+                  <span
+                    className={`mt-2 inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+                      selectedBlog.status === "published"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-yellow-100 text-yellow-700"
+                    }`}
+                  >
+                    {selectedBlog.status}
+                  </span>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Author</p>
+                  <p className="mt-2">
+                    {[selectedBlog.author?.firstName, selectedBlog.author?.lastName]
+                      .filter(Boolean)
+                      .join(" ") || "N/A"}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Created At</p>
+                  <p className="mt-2">{formatDate(selectedBlog.createdAt)}</p>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Updated At</p>
+                  <p className="mt-2">{formatDate(selectedBlog.updatedAt)}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="font-semibold text-slate-900">Excerpt</p>
+                <p className="mt-2 rounded-lg bg-slate-50 p-3 text-sm">
+                  {selectedBlog.excerpt || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-semibold text-slate-900">Tags</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {selectedBlog.tags?.length ? (
+                    selectedBlog.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700"
+                      >
+                        {tag}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-sm text-slate-500">N/A</span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="font-semibold text-slate-900">Content</p>
+                <p className="mt-2 whitespace-pre-wrap rounded-lg bg-slate-50 p-3 text-sm leading-6">
+                  {selectedBlog.content}
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 text-sm">
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Blog ID</p>
+                  <p className="mt-2 break-all">{selectedBlog._id}</p>
+                </div>
+                <div className="rounded-lg bg-slate-50 p-3">
+                  <p className="font-semibold text-slate-900">Author ID</p>
+                  <p className="mt-2 break-all">
+                    {selectedBlog.author?._id || "N/A"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
