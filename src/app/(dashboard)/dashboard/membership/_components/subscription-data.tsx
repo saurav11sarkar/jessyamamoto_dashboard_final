@@ -122,7 +122,7 @@ export default function SubscriptionManagement() {
         queryKey: ["subscription"],
       });
 
-      toast.success(data?.message || "Subscription deleted successfully");
+      toast.success(data?.message || "Membership deleted successfully");
     },
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,7 +167,7 @@ export default function SubscriptionManagement() {
 
       setIsOpen(false);
       resetForm();
-      toast.success(data?.message || "Subscription created successfully");
+      toast.success(data?.message || "Membership created successfully");
     },
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -214,7 +214,7 @@ export default function SubscriptionManagement() {
 
       setIsOpen(false);
       resetForm();
-      toast.success(data?.message || "Subscription updated successfully");
+      toast.success(data?.message || "Membership updated successfully");
     },
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -288,7 +288,7 @@ export default function SubscriptionManagement() {
           className="bg-[#3ee0cf] hover:bg-[#3ee0cf]/90 text-white flex items-center gap-2 px-4 py-2 h-11"
         >
           <Plus className="w-5 h-5" />
-          Add Subscription
+          Add Membership
         </Button>
       </div>
 
@@ -410,7 +410,7 @@ export default function SubscriptionManagement() {
         <DialogContent className="sm:max-w-[525px] p-8 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-slate-800">
-              {editData ? "Edit Subscription" : "Add Subscription"}
+              {editData ? "Edit Membership" : "Add Membership"}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
@@ -420,7 +420,7 @@ export default function SubscriptionManagement() {
                 <Label className="text-lg text-slate-800">Type</Label>
                 <Select value={formType} onValueChange={setFormType}>
                   <SelectTrigger className="h-12 border-slate-200 rounded-lg">
-                    <SelectValue placeholder="Select subscription type" />
+                    <SelectValue placeholder="Select Membership type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monthly">Monthly</SelectItem>
