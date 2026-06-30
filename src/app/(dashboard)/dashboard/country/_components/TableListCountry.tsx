@@ -730,6 +730,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  GripVertical,
 } from "lucide-react";
 
 import {
@@ -821,6 +822,107 @@ export default function CountryTable() {
     },
     enabled: !!token,
   });
+
+  // ================= DRAG & DROP REORDER STATE =================
+  const [localCountries, setLocalCountries] = React.useState<Country[]>([]);
+  const [draggedIndex, setDraggedIndex] = React.useState<number | null>(null);
+  const rowRefs = React.useRef<(HTMLTableRowElement | null)[]>([]);
+  const localCountriesRef = React.useRef<Country[]>([]);
+
+  React.useEffect(() => {
+    if (data?.data) setLocalCountries(data.data);
+  }, [data?.data]);
+
+  React.useEffect(() => {
+    localCountriesRef.current = localCountries;
+  }, [localCountries]);
+
+  // ================= REORDER COUNTRY =================
+  const reorderMutation = useMutation({
+    mutationFn: async (orderedIds: string[]) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/reorder`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ orderedIds }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to reorder countries");
+      }
+
+      return res.json();
+    },
+    onError: () => {
+      toast.error("Failed to reorder countries");
+      queryClient.invalidateQueries({ queryKey: ["country"] });
+    },
+  });
+
+  const handleHandleMouseDown = (index: number) => (
+    e: React.MouseEvent | React.TouchEvent,
+  ) => {
+    e.preventDefault();
+    setDraggedIndex(index);
+  };
+
+  // ================= MOUSE-BASED DRAG TO REORDER =================
+  React.useEffect(() => {
+    if (draggedIndex === null) return;
+
+    const prevUserSelect = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+
+    const getClientY = (e: MouseEvent | TouchEvent) =>
+      "touches" in e ? e.touches[0]?.clientY : e.clientY;
+
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      const clientY = getClientY(e);
+      if (clientY === undefined) return;
+
+      const overIndex = rowRefs.current.findIndex((row) => {
+        if (!row) return false;
+        const rect = row.getBoundingClientRect();
+        return clientY >= rect.top && clientY <= rect.bottom;
+      });
+
+      if (overIndex === -1 || overIndex === draggedIndex) return;
+
+      setLocalCountries((prev) => {
+        const updated = [...prev];
+        const [moved] = updated.splice(draggedIndex, 1);
+        updated.splice(overIndex, 0, moved);
+        return updated;
+      });
+      setDraggedIndex(overIndex);
+    };
+
+    const handleUp = () => {
+      setDraggedIndex(null);
+      reorderMutation.mutate(
+        localCountriesRef.current.map((country) => country._id),
+      );
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("mouseup", handleUp);
+    window.addEventListener("touchmove", handleMove);
+    window.addEventListener("touchend", handleUp);
+
+    return () => {
+      document.body.style.userSelect = prevUserSelect;
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("mouseup", handleUp);
+      window.removeEventListener("touchmove", handleMove);
+      window.removeEventListener("touchend", handleUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draggedIndex]);
 
   // ================= ADD COUNTRY =================
   const addCountryMutation = useMutation({
@@ -1464,6 +1566,7 @@ export default function CountryTable() {
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent border-[#B6B6B6]">
+              <TableHead className="py-4 font-bold px-4 text-slate-800 w-10" />
               <TableHead className="py-4 font-bold px-8 text-slate-800">
                 Country Image
               </TableHead>
@@ -1486,18 +1589,35 @@ export default function CountryTable() {
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-10 text-slate-500"
                 >
                   Loading...
                 </TableCell>
               </TableRow>
-            ) : data?.data?.length ? (
-              data.data.map((country) => (
+            ) : localCountries.length ? (
+              localCountries.map((country, index) => (
                 <TableRow
                   key={country._id}
-                  className="border-b border-[#B6B6B6]"
+                  ref={(el) => {
+                    rowRefs.current[index] = el;
+                  }}
+                  className={`border-b border-[#B6B6B6] ${
+                    draggedIndex === index ? "opacity-40" : ""
+                  }`}
                 >
+                  {/* DRAG HANDLE */}
+                  <TableCell className="py-6 px-4 text-slate-400">
+                    <span
+                      title="Drag to reorder"
+                      className="cursor-grab active:cursor-grabbing inline-flex touch-none select-none"
+                      onMouseDown={handleHandleMouseDown(index)}
+                      onTouchStart={handleHandleMouseDown(index)}
+                    >
+                      <GripVertical className="w-5 h-5" />
+                    </span>
+                  </TableCell>
+
                   {/* COUNTRY IMAGE */}
                   <TableCell className="py-6 font-medium px-8 text-slate-700">
                     {country.image ? (
@@ -1550,7 +1670,7 @@ export default function CountryTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={5}
+                  colSpan={6}
                   className="text-center py-10 text-slate-500"
                 >
                   No Country Found

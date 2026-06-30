@@ -29,6 +29,7 @@ export interface Country {
   neighborhoods?: string[];
 
   image?: string;
+  order?: number;
 
   createdAt: string;
   updatedAt: string;
