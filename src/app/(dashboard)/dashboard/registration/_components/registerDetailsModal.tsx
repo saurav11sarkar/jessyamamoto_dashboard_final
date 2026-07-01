@@ -16,9 +16,9 @@ export default function RegisterDetails({
 }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-2xl p-8">
+      <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:max-w-2xl sm:p-8">
         {/* Top Info Section */}
-        <div className="grid grid-cols-2 gap-x-12 gap-y-6">
+        <div className="grid grid-cols-1 gap-x-12 gap-y-6 sm:grid-cols-2">
           <div className="space-y-1">
             <p className="text-sm font-medium text-gray-500">Name:</p>
             <p className="text-xl font-bold text-gray-900">Jonson</p>
@@ -45,7 +45,7 @@ export default function RegisterDetails({
         <hr className="my-6 border-gray-200" />
 
         {/* Action Buttons */}
-        <div className="flex justify-center gap-4">
+        <div className="flex flex-col justify-center gap-4 sm:flex-row">
           <Button className="bg-green-600 px-10 hover:bg-green-700">Accept</Button>
           <Button variant="destructive" className="bg-red-700 px-10 hover:bg-red-800">
             Reject Account
@@ -55,7 +55,7 @@ export default function RegisterDetails({
         {/* Business Card Section */}
         <div className="mt-8 flex flex-col items-center">
           <p className="mb-4 font-bold text-gray-800">Business Card:</p>
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/* Replace src with your actual image paths */}
             <div className="overflow-hidden rounded-xl border-4 border-emerald-800/20">
               <Image src="/card-front.png" alt="Card Front" width={180} height={100} className="object-cover" />

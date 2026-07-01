@@ -101,7 +101,7 @@ const Registration = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Registration Requests" />
         <div className="flex w-full max-w-sm items-center overflow-hidden rounded-lg border border-[#666666] focus-within:ring-1 focus-within:ring-ring">
           <Input
@@ -203,11 +203,11 @@ const Registration = () => {
           </TableBody>
         </Table>
 
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Showing page {page} of {totalPages || 1}
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Button
               variant="outline"
               size="icon"
@@ -242,7 +242,7 @@ const Registration = () => {
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-lg p-6 rounded-lg shadow-lg bg-white">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto p-4 sm:p-6 rounded-lg shadow-lg bg-white">
           <DialogHeader>
             <DialogTitle>User Details</DialogTitle>
             <DialogDescription>Registration information</DialogDescription>
@@ -263,7 +263,7 @@ const Registration = () => {
                   <p className="text-sm text-slate-500">{selectedUser.email}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <p><strong>Role:</strong> {selectedUser.role}</p>
                 <p><strong>Status:</strong> {selectedUser.userStatus || "pending"}</p>
                 <p><strong>Phone:</strong> {selectedUser.phone || "N/A"}</p>

@@ -45,7 +45,7 @@ export default function PendingApprovals() {
 
   return (
     <Card className="border-none shadow-sm h-full">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-0">
         <div className="space-y-1">
           <CardTitle className="text-xl font-bold">
             Pending Cleaners Approvals

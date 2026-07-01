@@ -153,9 +153,9 @@ export default function ProviderPayoutsPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="flex px-8 py-4 justify-between items-start mb-4">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-4">
         <DynamicPageHeader pageTitle="Provider Payouts" />
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <select
             value={filter}
             onChange={(e) => { setFilter(e.target.value); setPage(1); }}
@@ -172,7 +172,7 @@ export default function ProviderPayoutsPage() {
         </div>
       </div>
 
-      <div className="px-8 mb-6 grid grid-cols-3 gap-4">
+      <div className="px-4 sm:px-8 mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="bg-white border rounded-xl p-4 text-center">
           <p className="text-2xl font-bold">{total}</p>
           <p className="text-xs text-slate-500">Total Bookings</p>
@@ -255,9 +255,9 @@ export default function ProviderPayoutsPage() {
             </TableBody>
           </Table>
 
-          <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+          <div className="flex flex-col gap-3 px-4 py-4 border-t bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
             <p className="text-sm text-slate-500">Page {page} of {totalPages || 1}</p>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-x-auto">
               <Button variant="outline" size="icon" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="h-8 w-8">
                 <ChevronLeft className="h-4 w-4" />
               </Button>

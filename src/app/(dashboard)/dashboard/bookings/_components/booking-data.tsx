@@ -105,7 +105,7 @@ const BookingData = () => {
   return (
     <div className="min-h-screen">
       {/* Header Section */}
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Bookings" />
 
         <div className="flex w-full max-w-sm items-center overflow-hidden rounded-lg border border-[#666666] focus-within:ring-1 focus-within:ring-ring">
@@ -184,11 +184,11 @@ const BookingData = () => {
         </Table>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-[#FFFFFF]">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-[#FFFFFF] sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Showing {(meta.page - 1) * meta.limit + 1} to {Math.min(meta.page * meta.limit, meta.total)} of {meta.total} results
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Button
               variant="outline"
               size="icon"
@@ -222,7 +222,7 @@ const BookingData = () => {
 
       {/* Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl w-full p-6 rounded-lg shadow-lg bg-white">
+        <DialogContent className="max-w-2xl w-full max-h-[85vh] overflow-y-auto p-4 sm:p-6 rounded-lg shadow-lg bg-white">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold mb-2">Booking Details</DialogTitle>
             <DialogDescription className="text-sm text-gray-500">Detailed info of the selected booking.</DialogDescription>
@@ -242,7 +242,7 @@ const BookingData = () => {
                   <p className="text-sm text-slate-500">{selectedBooking?.userId?.email}</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <p><strong>Service Provider:</strong> {selectedBooking?.serviceId?.firstName} {selectedBooking?.serviceId?.lastName}</p>
                 <p><strong>Service Name:</strong> {selectedBooking?.categoryId?.name}</p>
                 <p><strong>Location:</strong> {selectedBooking?.location || selectedBooking?.serviceId?.location}</p>

@@ -300,12 +300,12 @@ export default function VerifyEmail() {
               value={otp}
               onChange={setOtp}
             >
-              <InputOTPGroup className="gap-4">
+              <InputOTPGroup className="gap-2 sm:gap-4">
                 {[...Array(6)].map((_, i) => (
                   <InputOTPSlot
                     key={i}
                     index={i}
-                    className="w-12 h-12 border-2 border-[#3ee0cf] text-xl font-semibold"
+                    className="h-10 w-10 border-2 border-[#3ee0cf] text-lg font-semibold sm:h-12 sm:w-12 sm:text-xl"
                   />
                 ))}
               </InputOTPGroup>

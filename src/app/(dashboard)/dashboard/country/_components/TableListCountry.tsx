@@ -288,7 +288,7 @@
 //   return (
 //     <div className="min-h-screen">
 //       {/* HEADER */}
-//       <div className="flex px-8 py-4 justify-between items-start mb-8">
+//       <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
 //         <DynamicPageHeader pageTitle="Countries" />
 
 //         <Button
@@ -1219,7 +1219,7 @@ export default function CountryTable() {
   return (
     <div className="min-h-screen">
       {/* HEADER */}
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Countries" />
 
         <Button

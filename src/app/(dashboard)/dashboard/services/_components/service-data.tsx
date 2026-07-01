@@ -106,7 +106,7 @@ export default function ServicesPage() {
   return (
     <div className=" min-h-screen">
       {/* Header Section */}
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Services" />
         <Button
           onClick={() => {
@@ -170,11 +170,11 @@ export default function ServicesPage() {
         </Table>
 
         {/* Pagination Section */}
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-[#FFFFFF]">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-[#FFFFFF] sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Showing page {page} of {totalPages}
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Button
               variant="outline"
               size="icon"

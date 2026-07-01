@@ -19,6 +19,7 @@ import {
   FileText,
   Wallet,
   CreditCard,
+  Menu,
 } from "lucide-react";
 
 import {
@@ -28,6 +29,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
@@ -53,33 +59,34 @@ const ambassadorNavigation = [
   { name: "Settings", href: "/dashboard/setting", icon: Settings },
 ];
 
-export function DashboardSidebar() {
+function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [logoutOpen, setLogoutOpen] = useState(false);
   const { data: session } = useSession();
   const userRole = (session?.user as { role?: string })?.role;
   const navigation = userRole === "ambassador" ? ambassadorNavigation : adminNavigation;
 
   const handleLogout = () => {
     signOut({ callbackUrl: "/" });
-    setOpen(false);
+    setLogoutOpen(false);
   };
 
   return (
-    <div className="flex flex-col w-[300px] bg-card border-r border-border h-screen">
-      <div className="mt-10">
+    <div className="flex flex-col w-full h-full">
+      <div className="mt-6 md:mt-10">
         <Link href="/" className="flex items-center justify-center w-full h-20">
           <Image src={"/logo.png"} alt="Logo" width={900} height={900} className="w-40 h-36" />
         </Link>
       </div>
 
-      <nav className="flex-1 scrollbar-none px-4 mt-10 space-y-[24px] overflow-y-auto">
+      <nav className="flex-1 scrollbar-none px-4 mt-6 md:mt-10 space-y-[24px] overflow-y-auto">
         {navigation.map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.name}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center px-2 py-3 text-[16px] font-medium rounded-md transition-colors",
                 isActive
@@ -96,7 +103,7 @@ export function DashboardSidebar() {
 
       {/* Logout button */}
       <button
-        onClick={() => setOpen(true)}
+        onClick={() => setLogoutOpen(true)}
         className="flex items-center px-3 py-2 m-4 text-sm font-medium rounded-md text-[#E5102E] hover:text-[#E5102E] hover:bg-muted transition-colors"
         type="button"
       >
@@ -105,8 +112,8 @@ export function DashboardSidebar() {
       </button>
 
       {/* Logout confirmation modal */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
+        <DialogContent className="w-[90vw] rounded-lg sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirm Logout</DialogTitle>
           </DialogHeader>
@@ -114,7 +121,7 @@ export function DashboardSidebar() {
             Are you sure you want to log out? You’ll need to log in again to access your dashboard.
           </p>
           <DialogFooter className="mt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+            <Button variant="outline" onClick={() => setLogoutOpen(false)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleLogout}>
@@ -123,6 +130,36 @@ export function DashboardSidebar() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+export function DashboardSidebar() {
+  return (
+    <div className="hidden md:flex md:flex-col md:w-[260px] lg:w-[300px] bg-card border-r border-border h-screen shrink-0">
+      <SidebarNav />
+    </div>
+  );
+}
+
+export function MobileSidebar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex md:hidden items-center justify-between px-4 h-16 border-b border-border bg-card sticky top-0 z-40">
+      <Link href="/" className="flex items-center">
+        <Image src={"/logo.png"} alt="Logo" width={120} height={48} className="h-10 w-auto" />
+      </Link>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild>
+          <Button variant="ghost" size="icon" aria-label="Open menu">
+            <Menu className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-4/5 p-0 sm:max-w-xs">
+          <SidebarNav onNavigate={() => setOpen(false)} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

@@ -91,7 +91,7 @@ export default function DashboardCharts() {
 
       {/* Earnings Chart */}
       <Card className="lg:col-span-2 border-none shadow-sm">
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-10">
+        <CardHeader className="flex flex-col gap-3 space-y-0 pb-10 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
           <div className="grid gap-1">
             <CardTitle className="text-xl font-bold">Earnings Overview</CardTitle>
             <CardDescription>
@@ -157,7 +157,7 @@ export default function DashboardCharts() {
 
       {/* Booking Distribution */}
       <Card className="border-none shadow-sm">
-        <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-10">
+        <CardHeader className="flex flex-col gap-3 space-y-0 pb-10 sm:flex-row sm:items-start sm:justify-between sm:gap-0">
           <div className="grid gap-1">
             <CardTitle className="text-xl font-bold">
               Booking Distribution

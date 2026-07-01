@@ -75,7 +75,7 @@ const RevenueData = () => {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Revenue" />
 
         {/* ✅ Search */}
@@ -183,12 +183,12 @@ const RevenueData = () => {
         </Table>
 
         {/* ✅ Pagination */}
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Page {page} of {totalPages || 1}
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto">
             <Button
               onClick={handlePrev}
               disabled={page === 1}

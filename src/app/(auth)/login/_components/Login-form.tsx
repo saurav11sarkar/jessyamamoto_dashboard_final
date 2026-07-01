@@ -73,7 +73,7 @@ export default function LoginPage() {
 
 
   return (
-    <div className="w-full h-screen flex items-center justify-center">
+    <div className="w-full min-h-screen flex items-center justify-center p-6">
       <div className="w-full max-w-[400px] space-y-8">
 
         {/* Header */}

@@ -191,7 +191,7 @@ export default function BlogManagement() {
 
   return (
     <div className="min-h-screen">
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Blog" />
         <Button
           onClick={openAddModal}
@@ -287,11 +287,11 @@ export default function BlogManagement() {
           </TableBody>
         </Table>
 
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">
             Showing page {page} of {totalPages || 1}
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Button
               variant="outline"
               size="icon"
@@ -480,7 +480,7 @@ export default function BlogManagement() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1.5">Status</label>
                 <select

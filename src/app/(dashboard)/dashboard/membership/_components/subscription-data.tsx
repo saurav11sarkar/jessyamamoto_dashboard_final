@@ -281,7 +281,7 @@ export default function SubscriptionManagement() {
   return (
     <div className="min-h-screen">
       {/* Header Section */}
-      <div className="flex px-8 py-4 justify-between items-start mb-8">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-8">
         <DynamicPageHeader pageTitle="Subscriptions" />
         <Button
           onClick={handleAdd}
@@ -407,7 +407,7 @@ export default function SubscriptionManagement() {
           if (!open) resetForm();
         }}
       >
-        <DialogContent className="sm:max-w-[525px] p-8 rounded-2xl">
+        <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:max-w-[525px] sm:p-8 rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold text-slate-800">
               {editData ? "Edit Membership" : "Add Membership"}

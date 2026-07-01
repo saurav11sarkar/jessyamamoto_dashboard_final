@@ -234,7 +234,7 @@ export default function AddServiceModal({ open, setIsOpen, editData }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={setIsOpen}>
-      <DialogContent className="sm:max-w-[525px] p-8 rounded-2xl">
+      <DialogContent className="max-h-[85vh] overflow-y-auto p-4 sm:max-w-[525px] sm:p-8 rounded-2xl">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-6">
             {/* Title */}

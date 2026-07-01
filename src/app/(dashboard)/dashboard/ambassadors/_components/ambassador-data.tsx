@@ -296,9 +296,9 @@ export default function AmbassadorManagement() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="flex px-8 py-4 justify-between items-start mb-4">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:px-8 mb-4">
         <DynamicPageHeader pageTitle="City Ambassadors" />
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Button onClick={() => setIsAssignOpen(true)} variant="outline" className="flex items-center gap-2 h-11">
             <UserPlus className="w-4 h-4" /> Assign to Provider
           </Button>
@@ -407,9 +407,9 @@ export default function AmbassadorManagement() {
           </TableBody>
         </Table>
 
-        <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
+        <div className="flex flex-col gap-3 px-4 py-4 border-t bg-white sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <p className="text-sm text-slate-500">Showing page {page} of {totalPages || 1}</p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto">
             <Button variant="outline" size="icon" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -431,7 +431,7 @@ export default function AmbassadorManagement() {
             <DialogTitle>{editData ? "Edit Ambassador" : "Create Ambassador"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">First Name *</label>
                 <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
@@ -444,7 +444,7 @@ export default function AmbassadorManagement() {
               </div>
             </div>
             {!editData && (
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium mb-1">Email *</label>
                   <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -457,7 +457,7 @@ export default function AmbassadorManagement() {
                 </div>
               </div>
             )}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Ambassador ID *</label>
                 <input type="text" value={ambId} onChange={e => setAmbId(e.target.value)} placeholder="AMB-BKK-001"
@@ -469,7 +469,7 @@ export default function AmbassadorManagement() {
                   className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Assigned City *</label>
                 <input type="text" value={city} onChange={e => setCity(e.target.value)}
@@ -486,7 +486,7 @@ export default function AmbassadorManagement() {
               <input type="text" value={languages} onChange={e => setLanguages(e.target.value)} placeholder="English, Thai, Korean"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50" />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <label className="block text-sm font-medium mb-1">Commission Rate (%)</label>
                 <input type="number" value={commissionRate} onChange={e => setCommissionRate(Number(e.target.value))}
@@ -512,7 +512,7 @@ export default function AmbassadorManagement() {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
