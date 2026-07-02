@@ -806,7 +806,7 @@ export default function CountryTable() {
     queryKey: ["country", page],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country?page=${page}&limit=10`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/admin/all?page=${page}&limit=10`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -821,6 +821,80 @@ export default function CountryTable() {
       return res.json();
     },
     enabled: !!token,
+  });
+
+  // ================= TOGGLE COUNTRY STATUS =================
+  const toggleCountryStatusMutation = useMutation({
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: "active" | "inactive";
+    }) => {
+      const formData = new FormData();
+      formData.append("data", JSON.stringify({ status }));
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update country status");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["country"] });
+    },
+    onError: () => {
+      toast.error("Failed to update country status");
+    },
+  });
+
+  // ================= TOGGLE CITY STATUS =================
+  const toggleCityStatusMutation = useMutation({
+    mutationFn: async ({
+      countryId,
+      cityName,
+      status,
+    }: {
+      countryId: string;
+      cityName: string;
+      status: "active" | "inactive";
+    }) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/${countryId}/city/${encodeURIComponent(cityName)}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update city status");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["country"] });
+    },
+    onError: () => {
+      toast.error("Failed to update city status");
+    },
   });
 
   // ================= DRAG & DROP REORDER STATE =================
@@ -1174,7 +1248,10 @@ export default function CountryTable() {
   };
 
   // Helper function to render cities and neighborhoods in table
-  const renderCitiesAndNeighborhoods = (citiesData?: City[] | string[]) => {
+  const renderCitiesAndNeighborhoods = (
+    citiesData?: City[] | string[],
+    countryId?: string,
+  ) => {
     if (!citiesData || citiesData.length === 0) return "No Cities";
 
     // Normalize string[] (old format) to City[] (new format)
@@ -1188,13 +1265,50 @@ export default function CountryTable() {
 
     return (
       <div className="space-y-3">
-        {normalizedCities.map((city, idx) => (
+        {normalizedCities.map((city, idx) => {
+          const isCityActive = city.status !== "inactive";
+          return (
           <div
             key={idx}
-            className="border-b border-gray-100 pb-2 last:border-0"
+            className={`border-b border-gray-100 pb-2 last:border-0 ${
+              isCityActive ? "" : "opacity-50"
+            }`}
           >
-            <div className="font-semibold text-slate-700 mb-1">
-              {city.cityName}
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-semibold text-slate-700">
+                {city.cityName}
+              </span>
+              {!isCityActive && (
+                <span className="px-2 py-0.5 rounded-full bg-slate-200 text-[10px] font-medium text-slate-600">
+                  Inactive
+                </span>
+              )}
+              {countryId && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isCityActive}
+                  title={
+                    isCityActive ? "Deactivate city" : "Activate city"
+                  }
+                  onClick={() =>
+                    toggleCityStatusMutation.mutate({
+                      countryId,
+                      cityName: city.cityName,
+                      status: isCityActive ? "inactive" : "active",
+                    })
+                  }
+                  className={`relative inline-flex h-4 w-8 items-center rounded-full transition-colors ${
+                    isCityActive ? "bg-[#3ee0cf]" : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                      isCityActive ? "translate-x-4" : "translate-x-0.5"
+                    }`}
+                  />
+                </button>
+              )}
             </div>
             {city.neighborhoods && city.neighborhoods.length > 0 && (
               <div className="flex flex-wrap gap-1">
@@ -1211,7 +1325,8 @@ export default function CountryTable() {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
@@ -1580,6 +1695,9 @@ export default function CountryTable() {
                 Created Date
               </TableHead>
               <TableHead className="py-4 font-bold px-8 text-slate-800 text-center">
+                Status
+              </TableHead>
+              <TableHead className="py-4 font-bold px-8 text-slate-800 text-center">
                 Action
               </TableHead>
             </TableRow>
@@ -1589,7 +1707,7 @@ export default function CountryTable() {
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-10 text-slate-500"
                 >
                   Loading...
@@ -1603,7 +1721,11 @@ export default function CountryTable() {
                     rowRefs.current[index] = el;
                   }}
                   className={`border-b border-[#B6B6B6] ${
-                    draggedIndex === index ? "opacity-40" : ""
+                    draggedIndex === index
+                      ? "opacity-40"
+                      : country.status === "inactive"
+                        ? "opacity-60"
+                        : ""
                   }`}
                 >
                   {/* DRAG HANDLE */}
@@ -1640,12 +1762,54 @@ export default function CountryTable() {
                   <TableCell className="py-6 px-8 text-slate-600">
                     {renderCitiesAndNeighborhoods(
                       country.cities || country.cityName || [],
+                      country._id,
                     )}
                   </TableCell>
 
                   {/* DATE */}
                   <TableCell className="py-6 text-center px-8 text-slate-600">
                     {new Date(country.createdAt).toLocaleDateString()}
+                  </TableCell>
+
+                  {/* STATUS */}
+                  <TableCell className="py-6 px-8">
+                    <div className="flex flex-col items-center gap-1">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={country.status !== "inactive"}
+                        title={
+                          country.status !== "inactive"
+                            ? "Deactivate country"
+                            : "Activate country"
+                        }
+                        onClick={() =>
+                          toggleCountryStatusMutation.mutate({
+                            id: country._id,
+                            status:
+                              country.status !== "inactive"
+                                ? "inactive"
+                                : "active",
+                          })
+                        }
+                        className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors ${
+                          country.status !== "inactive"
+                            ? "bg-[#3ee0cf]"
+                            : "bg-slate-300"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            country.status !== "inactive"
+                              ? "translate-x-5"
+                              : "translate-x-0.5"
+                          }`}
+                        />
+                      </button>
+                      <span className="text-[11px] font-medium text-slate-500">
+                        {country.status !== "inactive" ? "Active" : "Inactive"}
+                      </span>
+                    </div>
                   </TableCell>
 
                   {/* ACTION */}
@@ -1670,7 +1834,7 @@ export default function CountryTable() {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={6}
+                  colSpan={7}
                   className="text-center py-10 text-slate-500"
                 >
                   No Country Found

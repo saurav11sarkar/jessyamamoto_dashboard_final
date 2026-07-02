@@ -15,6 +15,7 @@ export interface Meta {
 export interface City {
   cityName: string;
   neighborhoods: string[];
+  status?: "active" | "inactive";
 }
 
 export interface Country {
@@ -30,6 +31,7 @@ export interface Country {
 
   image?: string;
   order?: number;
+  status?: "active" | "inactive";
 
   createdAt: string;
   updatedAt: string;
