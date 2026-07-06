@@ -64,7 +64,7 @@ export default function LanguageTable() {
     queryKey: ["language", page],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/language?page=${page}&limit=10`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/language?page=${page}&limit=10&sortBy=languageName&sortOrder=asc`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
