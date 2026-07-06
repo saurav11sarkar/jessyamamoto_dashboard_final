@@ -1147,7 +1147,7 @@ export default function CountryTable() {
   };
 
   // ================= HANDLE EDIT =================
-  const handleEdit = (country: Country) => {
+  const applyCountryToForm = (country: Country) => {
     setSelectedCountry(country);
     setCountryName(country.countryName || "");
 
@@ -1167,7 +1167,35 @@ export default function CountryTable() {
 
     setImage(null);
     setImagePreview(country.image || "");
+  };
+
+  const handleEdit = async (country: Country) => {
+    // Seed the form immediately from the table row so the modal opens without delay...
+    applyCountryToForm(country);
     setEditOpen(true);
+
+    // ...then refresh from the server so edits aren't based on a stale cached
+    // list (this is what was causing previously-saved cities to disappear
+    // when the whole cities array got overwritten with an out-of-date snapshot).
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/${country._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (res.ok) {
+        const { data: freshCountry } = await res.json();
+        if (freshCountry) {
+          applyCountryToForm(freshCountry);
+        }
+      }
+    } catch {
+      // Keep the snapshot already applied above if the refresh fails.
+    }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
