@@ -763,6 +763,7 @@ import { toast } from "sonner";
 interface CityWithNeighborhoods {
   cityName: string;
   neighborhoods: string[];
+  status?: "active" | "inactive";
 }
 
 export default function CountryTable() {
@@ -1002,11 +1003,16 @@ export default function CountryTable() {
   const addCountryMutation = useMutation({
     mutationFn: async () => {
       const formData = new FormData();
+      const trimmedCities = getTrimmedCities();
+
+      if (hasDuplicateCities(trimmedCities)) {
+        throw new Error("Each city name must be unique");
+      }
 
       // Create the data object that matches your backend structure
       const dataObject = {
-        countryName: countryName,
-        cities: cities,
+        countryName: countryName.trim(),
+        cities: trimmedCities,
       };
 
       // Send as JSON string in 'data' field (matches your backend's req.body.data)
@@ -1058,11 +1064,16 @@ export default function CountryTable() {
       if (!selectedCountry) return;
 
       const formData = new FormData();
+      const trimmedCities = getTrimmedCities();
+
+      if (hasDuplicateCities(trimmedCities)) {
+        throw new Error("Each city name must be unique");
+      }
 
       // Create the data object that matches your backend structure
       const dataObject = {
-        countryName: countryName,
-        cities: cities,
+        countryName: countryName.trim(),
+        cities: trimmedCities,
       };
 
       // Send as JSON string in 'data' field
@@ -1169,6 +1180,40 @@ export default function CountryTable() {
     setImagePreview(country.image || "");
   };
 
+  const getTrimmedCities = () =>
+    cities
+      .map((city) => ({
+        ...city,
+        cityName: city.cityName.trim(),
+        neighborhoods: city.neighborhoods
+          .map((neighborhood) => neighborhood.trim())
+          .filter(Boolean),
+      }))
+      .filter((city) => city.cityName);
+
+  const hasDuplicateCity = (cityName: string, currentIndex?: number) => {
+    const normalizedCityName = cityName.trim().toLowerCase();
+    if (!normalizedCityName) return false;
+
+    return cities.some(
+      (city, index) =>
+        index !== currentIndex &&
+        city.cityName.trim().toLowerCase() === normalizedCityName,
+    );
+  };
+
+  const hasDuplicateCities = (cityList: CityWithNeighborhoods[]) => {
+    const seen = new Set<string>();
+
+    return cityList.some((city) => {
+      const normalizedCityName = city.cityName.trim().toLowerCase();
+      if (!normalizedCityName) return false;
+      if (seen.has(normalizedCityName)) return true;
+      seen.add(normalizedCityName);
+      return false;
+    });
+  };
+
   const handleEdit = async (country: Country) => {
     // Seed the form immediately from the table row so the modal opens without delay...
     applyCountryToForm(country);
@@ -1207,9 +1252,45 @@ export default function CountryTable() {
 
   // ================= ADD CITY =================
   const handleAddCity = () => {
-    if (!cityInput.trim()) return;
-    setCities((prev) => [...prev, { cityName: cityInput, neighborhoods: [] }]);
+    const nextCityName = cityInput.trim();
+    if (!nextCityName) return;
+    if (hasDuplicateCity(nextCityName)) {
+      toast.error("City already exists in this country");
+      return;
+    }
+    setCities((prev) => [
+      ...prev,
+      { cityName: nextCityName, neighborhoods: [], status: "active" },
+    ]);
     setCityInput("");
+  };
+
+  const handleRenameCity = (index: number, cityName: string) => {
+    setCities((prev) =>
+      prev.map((city, cityIndex) =>
+        cityIndex === index ? { ...city, cityName } : city,
+      ),
+    );
+  };
+
+  const handleCityBlur = (index: number) => {
+    const cityName = cities[index]?.cityName || "";
+    if (!cityName.trim()) {
+      setCities((prev) => prev.filter((_, cityIndex) => cityIndex !== index));
+      toast.error("Blank city names are removed");
+      return;
+    }
+
+    if (hasDuplicateCity(cityName, index)) {
+      toast.error("City already exists in this country");
+      return;
+    }
+
+    setCities((prev) =>
+      prev.map((city, cityIndex) =>
+        cityIndex === index ? { ...city, cityName: cityName.trim() } : city,
+      ),
+    );
   };
 
   // ================= REMOVE CITY =================
@@ -1449,15 +1530,25 @@ export default function CountryTable() {
                 <label className="text-sm font-medium block">
                   Cities & Neighborhoods
                 </label>
+                <p className="text-xs text-slate-500">
+                  Edit a city name directly here. Existing neighborhoods and
+                  status are kept.
+                </p>
                 {cities.map((city, index) => (
                   <div key={index} className="border rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-700">
-                        {city.cityName}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        aria-label="City name"
+                        value={city.cityName}
+                        onChange={(e) =>
+                          handleRenameCity(index, e.target.value)
+                        }
+                        onBlur={() => handleCityBlur(index)}
+                        className="h-9 font-medium text-slate-700"
+                      />
                       <button
                         onClick={() => handleRemoveCity(city.cityName)}
-                        className="text-red-500 hover:text-red-700"
+                        className="shrink-0 text-red-500 hover:text-red-700"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -1627,15 +1718,25 @@ export default function CountryTable() {
                 <label className="text-sm font-medium block">
                   Cities & Neighborhoods
                 </label>
+                <p className="text-xs text-slate-500">
+                  Edit a city name directly here. Existing neighborhoods and
+                  status are kept.
+                </p>
                 {cities.map((city, index) => (
                   <div key={index} className="border rounded-lg p-3 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-slate-700">
-                        {city.cityName}
-                      </span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        aria-label="City name"
+                        value={city.cityName}
+                        onChange={(e) =>
+                          handleRenameCity(index, e.target.value)
+                        }
+                        onBlur={() => handleCityBlur(index)}
+                        className="h-9 font-medium text-slate-700"
+                      />
                       <button
                         onClick={() => handleRemoveCity(city.cityName)}
-                        className="text-red-500 hover:text-red-700"
+                        className="shrink-0 text-red-500 hover:text-red-700"
                       >
                         <X className="w-4 h-4" />
                       </button>
