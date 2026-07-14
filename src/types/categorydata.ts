@@ -16,6 +16,10 @@ export interface Category {
   _id: string;
   name: string;
   image?: string; // optional because not all items have image
+  description?: string;
+  banner?: string[];
+  isActive?: boolean;
+  order?: number;
   findCareUser: string[];
   findJobUser: string[];
   createdAt: string; // ISO date string

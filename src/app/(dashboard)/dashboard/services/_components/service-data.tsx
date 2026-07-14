@@ -7,6 +7,10 @@ import {
   Trash2,
   ChevronLeft,
   ChevronRight,
+  ArrowDown,
+  ArrowUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import {
   Table,
@@ -42,7 +46,7 @@ export default function ServicesPage() {
     enabled: !!userId && !!token,
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/category?page=${page}&limit=10`,
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/category?page=${page}&limit=10&includeInactive=true&sortBy=order&sortOrder=asc`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -99,6 +103,45 @@ export default function ServicesPage() {
     setIsOpen(true);
   };
 
+  const updateCategoryMutation = useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Partial<Category>;
+    }) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/category/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Update failed");
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service"] });
+      toast.success("Service updated successfully");
+    },
+    onError: (err: Error) => {
+      toast.error(err?.message || "Update failed");
+    },
+  });
+
+  const moveCategory = (service: Category, direction: -1 | 1) => {
+    updateCategoryMutation.mutate({
+      id: service._id,
+      payload: { order: (service.order || 0) + direction },
+    });
+  };
+
   const total = data?.meta?.total || 0;
   const limit = data?.meta?.limit || 10;
   const totalPages = Math.ceil(total / limit);
@@ -144,12 +187,51 @@ export default function ServicesPage() {
                     <AvatarImage src={service.image} />
                   </Avatar>
                   <span className="ml-4">{service.name}</span>
+                  <span
+                    className={`ml-3 rounded-full px-2.5 py-1 text-xs font-medium ${
+                      service.isActive === false
+                        ? "bg-slate-100 text-slate-600"
+                        : "bg-emerald-50 text-emerald-700"
+                    }`}
+                  >
+                    {service.isActive === false ? "Hidden" : "Active"}
+                  </span>
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600">
                   {new Date(service.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="py-6 px-8">
                   <div className="flex items-center justify-center gap-4">
+                    <button
+                      title="Move up"
+                      onClick={() => moveCategory(service, -1)}
+                      className="text-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      <ArrowUp className="w-5 h-5" />
+                    </button>
+                    <button
+                      title="Move down"
+                      onClick={() => moveCategory(service, 1)}
+                      className="text-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      <ArrowDown className="w-5 h-5" />
+                    </button>
+                    <button
+                      title={service.isActive === false ? "Show service" : "Hide service"}
+                      onClick={() =>
+                        updateCategoryMutation.mutate({
+                          id: service._id,
+                          payload: { isActive: service.isActive === false },
+                        })
+                      }
+                      className="text-slate-600 hover:text-blue-600 transition-colors"
+                    >
+                      {service.isActive === false ? (
+                        <Eye className="w-5 h-5" />
+                      ) : (
+                        <EyeOff className="w-5 h-5" />
+                      )}
+                    </button>
                     <button
                       onClick={() => handleEdit(service)}
                       className="text-slate-600 hover:text-blue-600 transition-colors"
