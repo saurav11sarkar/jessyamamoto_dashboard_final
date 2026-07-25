@@ -43,6 +43,8 @@ interface Subscription {
   type: string;
   title: string;
   price: number;
+  bookingFeePercent?: number;
+  bookingFeeMinimum?: number;
   description: string;
   content: string;
   totalSubscripeUser?: string[];
@@ -71,6 +73,8 @@ export default function SubscriptionManagement() {
   const [formType, setFormType] = React.useState("");
   const [formTitle, setFormTitle] = React.useState("");
   const [formPrice, setFormPrice] = React.useState("");
+  const [formBookingFeePercent, setFormBookingFeePercent] = React.useState("8.88");
+  const [formBookingFeeMinimum, setFormBookingFeeMinimum] = React.useState("1.25");
   const [formDescription, setFormDescription] = React.useState("");
   const [formContent, setFormContent] = React.useState("");
 
@@ -136,6 +140,8 @@ export default function SubscriptionManagement() {
       type: string;
       title: string;
       price: number;
+      bookingFeePercent: number;
+      bookingFeeMinimum: number;
       description: string;
       content: string;
     }) => {
@@ -182,6 +188,8 @@ export default function SubscriptionManagement() {
       type: string;
       title: string;
       price: number;
+      bookingFeePercent: number;
+      bookingFeeMinimum: number;
       description: string;
       content: string;
     }) => {
@@ -227,6 +235,8 @@ export default function SubscriptionManagement() {
     setFormType("");
     setFormTitle("");
     setFormPrice("");
+    setFormBookingFeePercent("8.88");
+    setFormBookingFeeMinimum("1.25");
     setFormDescription("");
     setFormContent("");
     setEditData(null);
@@ -241,6 +251,8 @@ export default function SubscriptionManagement() {
     setFormType(subscription.type);
     setFormTitle(subscription.title);
     setFormPrice(String(subscription.price));
+    setFormBookingFeePercent(String(subscription.bookingFeePercent ?? 8.88));
+    setFormBookingFeeMinimum(String(subscription.bookingFeeMinimum ?? 1.25));
     setFormDescription(subscription.description);
     setFormContent(subscription.content);
     setIsOpen(true);
@@ -263,6 +275,8 @@ export default function SubscriptionManagement() {
       type: formType,
       title: formTitle,
       price: Number(formPrice),
+      bookingFeePercent: Number(formBookingFeePercent),
+      bookingFeeMinimum: Number(formBookingFeeMinimum),
       description: formDescription,
       content: formContent,
     };
@@ -307,6 +321,9 @@ export default function SubscriptionManagement() {
                 Price
               </TableHead>
               <TableHead className="py-4 font-bold px-8 text-slate-800 text-center">
+                Booking Fee
+              </TableHead>
+              <TableHead className="py-4 font-bold px-8 text-slate-800 text-center">
                 Description
               </TableHead>
               <TableHead className="py-4 font-bold px-8 text-slate-800 text-center">
@@ -331,6 +348,10 @@ export default function SubscriptionManagement() {
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600">
                   ${subscription.price}
+                </TableCell>
+                <TableCell className="py-6 text-center px-8 text-slate-600">
+                  {subscription.bookingFeePercent ?? 8.88}% / min $
+                  {subscription.bookingFeeMinimum ?? 1.25}
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600 max-w-[200px] truncate">
                   {subscription.description}
@@ -424,8 +445,9 @@ export default function SubscriptionManagement() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="6month">6 Month</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
                     <SelectItem value="yearly">Yearly</SelectItem>
+                    <SelectItem value="annual">Annual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -451,6 +473,35 @@ export default function SubscriptionManagement() {
                   value={formPrice}
                   onChange={(e) => setFormPrice(e.target.value)}
                 />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="grid gap-2">
+                  <Label className="text-lg text-slate-800">
+                    Booking Fee %
+                  </Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="8.88"
+                    className="h-12 border-slate-200 rounded-lg"
+                    value={formBookingFeePercent}
+                    onChange={(e) => setFormBookingFeePercent(e.target.value)}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label className="text-lg text-slate-800">
+                    Minimum Fee
+                  </Label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    placeholder="1.25"
+                    className="h-12 border-slate-200 rounded-lg"
+                    value={formBookingFeeMinimum}
+                    onChange={(e) => setFormBookingFeeMinimum(e.target.value)}
+                  />
+                </div>
               </div>
 
               {/* Description */}
