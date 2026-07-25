@@ -19,6 +19,7 @@ import {
   FileText,
   Wallet,
   CreditCard,
+  Award,
   Menu,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ const adminNavigation = [
   { name: "Education", href: "/dashboard/education", icon: BookText },
   { name: "Blog", href: "/dashboard/blog", icon: FileText },
   { name: "Membership", href: "/dashboard/membership", icon: CreditCard },
+  { name: "Badges", href: "/dashboard/badges", icon: Award },
   { name: "Provider Payouts", href: "/dashboard/provider-payouts", icon: Wallet },
   // { name: "Ambassadors", href: "/dashboard/ambassadors", icon: UserPlus },
   { name: "User Managements", href: "/dashboard/user-managements", icon: User2 },
