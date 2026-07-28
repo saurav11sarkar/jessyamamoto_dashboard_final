@@ -56,6 +56,26 @@ type Booking = {
   time: string
   status: string
   location: string
+  disputeReason?: string
+}
+
+const statusBadgeClass = (status?: string) => {
+  switch (status) {
+    case "completed":
+      return "bg-green-100 text-green-800"
+    case "cancelled":
+    case "declined":
+      return "bg-red-100 text-red-800"
+    case "confirmed":
+    case "accepted":
+      return "bg-blue-100 text-blue-800"
+    case "no_show":
+      return "bg-orange-100 text-orange-800"
+    case "disputed":
+      return "bg-purple-100 text-purple-800"
+    default:
+      return "bg-yellow-100 text-yellow-800"
+  }
 }
 
 type Meta = {
@@ -163,7 +183,7 @@ const BookingData = () => {
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600">{b?.date}</TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600">
-                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${b?.status === "completed" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusBadgeClass(b?.status)}`}>
                     {b?.status}
                   </span>
                 </TableCell>
@@ -251,16 +271,17 @@ const BookingData = () => {
                 <p><strong>Date:</strong> {selectedBooking?.date}</p>
                 <p><strong>Time:</strong> {selectedBooking?.time}</p>
                 <p><strong>Status:</strong>
-                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    selectedBooking?.status === "completed" ? "bg-green-100 text-green-800"
-                    : selectedBooking?.status === "cancelled" ? "bg-red-100 text-red-800"
-                    : selectedBooking?.status === "accepted" ? "bg-blue-100 text-blue-800"
-                    : "bg-yellow-100 text-yellow-800"
-                  }`}>
+                  <span className={`ml-2 px-2 py-0.5 rounded-full text-xs font-semibold ${statusBadgeClass(selectedBooking?.status)}`}>
                     {selectedBooking?.status}
                   </span>
                 </p>
               </div>
+              {selectedBooking?.disputeReason && (
+                <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 text-sm text-purple-900">
+                  <p className="font-semibold">Dispute reason</p>
+                  <p className="mt-1">{selectedBooking.disputeReason}</p>
+                </div>
+              )}
             </div>
           )}
 

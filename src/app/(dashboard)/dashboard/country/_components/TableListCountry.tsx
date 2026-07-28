@@ -764,6 +764,8 @@ interface CityWithNeighborhoods {
   cityName: string;
   neighborhoods: string[];
   status?: "active" | "inactive";
+  bookingFeePercent?: number;
+  bookingFeeMinimum?: number;
 }
 
 export default function CountryTable() {
@@ -801,6 +803,12 @@ export default function CountryTable() {
   const [selectedCityForNeighborhood, setSelectedCityForNeighborhood] =
     React.useState<string>("");
   const [neighborhoodInput, setNeighborhoodInput] = React.useState("");
+
+  // ================= CITY PRICING DRAFT STATE =================
+  // Keyed by cityName, holds the in-progress edit before "Save" is clicked.
+  const [pricingDrafts, setPricingDrafts] = React.useState<
+    Record<string, { percent: string; minimum: string }>
+  >({});
 
   // ================= FETCH COUNTRY =================
   const { data, isLoading } = useQuery<CountryResponse>({
@@ -895,6 +903,49 @@ export default function CountryTable() {
     },
     onError: () => {
       toast.error("Failed to update city status");
+    },
+  });
+
+  // ================= UPDATE CITY PRICING OVERRIDE =================
+  const updateCityPricingMutation = useMutation({
+    mutationFn: async ({
+      countryId,
+      cityName,
+      bookingFeePercent,
+      bookingFeeMinimum,
+    }: {
+      countryId: string;
+      cityName: string;
+      bookingFeePercent: string;
+      bookingFeeMinimum: string;
+    }) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/country/${countryId}/city/${encodeURIComponent(cityName)}/pricing`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            bookingFeePercent,
+            bookingFeeMinimum,
+          }),
+        },
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to update city pricing");
+      }
+
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["country"] });
+      toast.success("City pricing updated");
+    },
+    onError: () => {
+      toast.error("Failed to update city pricing");
     },
   });
 
@@ -1431,6 +1482,66 @@ export default function CountryTable() {
                     </span>
                   ),
                 )}
+              </div>
+            )}
+            {countryId && (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-slate-500">Booking fee override:</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="% (blank = default)"
+                  defaultValue={city.bookingFeePercent ?? ""}
+                  onChange={(e) =>
+                    setPricingDrafts((prev) => ({
+                      ...prev,
+                      [city.cityName]: {
+                        percent: e.target.value,
+                        minimum:
+                          prev[city.cityName]?.minimum ??
+                          String(city.bookingFeeMinimum ?? ""),
+                      },
+                    }))
+                  }
+                  className="w-28 rounded border border-slate-200 px-2 py-1"
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="min $ (blank = default)"
+                  defaultValue={city.bookingFeeMinimum ?? ""}
+                  onChange={(e) =>
+                    setPricingDrafts((prev) => ({
+                      ...prev,
+                      [city.cityName]: {
+                        percent:
+                          prev[city.cityName]?.percent ??
+                          String(city.bookingFeePercent ?? ""),
+                        minimum: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-32 rounded border border-slate-200 px-2 py-1"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateCityPricingMutation.mutate({
+                      countryId,
+                      cityName: city.cityName,
+                      bookingFeePercent:
+                        pricingDrafts[city.cityName]?.percent ??
+                        String(city.bookingFeePercent ?? ""),
+                      bookingFeeMinimum:
+                        pricingDrafts[city.cityName]?.minimum ??
+                        String(city.bookingFeeMinimum ?? ""),
+                    })
+                  }
+                  disabled={updateCityPricingMutation.isPending}
+                  className="rounded bg-slate-900 px-3 py-1 font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+                >
+                  Save
+                </button>
               </div>
             )}
           </div>

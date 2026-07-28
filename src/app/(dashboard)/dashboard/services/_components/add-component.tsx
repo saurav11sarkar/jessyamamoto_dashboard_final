@@ -22,6 +22,8 @@ const schema = z.object({
   description: z.string().optional(),
   image: z.any().optional(),
   banner: z.any().optional(),
+  bookingFeePercent: z.string().optional(),
+  bookingFeeMinimum: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -35,6 +37,8 @@ interface Props {
     description?: string;
     image?: string;
     banner?: string[];
+    bookingFeePercent?: number;
+    bookingFeeMinimum?: number;
   } | null;
 }
 
@@ -66,6 +70,18 @@ export default function AddServiceModal({ open, setIsOpen, editData }: Props) {
     if (editData) {
       setValue("dname", editData.name || "");
       setValue("description", editData.description || "");
+      setValue(
+        "bookingFeePercent",
+        editData.bookingFeePercent != null
+          ? String(editData.bookingFeePercent)
+          : "",
+      );
+      setValue(
+        "bookingFeeMinimum",
+        editData.bookingFeeMinimum != null
+          ? String(editData.bookingFeeMinimum)
+          : "",
+      );
       setPreview(editData.image || null);
       setBannerPreview(editData.banner || []);
     } else {
@@ -105,6 +121,12 @@ export default function AddServiceModal({ open, setIsOpen, editData }: Props) {
 
       fd.append("name", formData.dname);
       fd.append("description", formData.description || "");
+      if (formData.bookingFeePercent) {
+        fd.append("bookingFeePercent", formData.bookingFeePercent);
+      }
+      if (formData.bookingFeeMinimum) {
+        fd.append("bookingFeeMinimum", formData.bookingFeeMinimum);
+      }
 
       // logo
       const imageFile = formData.image?.[0];
@@ -169,6 +191,12 @@ export default function AddServiceModal({ open, setIsOpen, editData }: Props) {
 
       fd.append("name", formData.dname);
       fd.append("description", formData.description || "");
+      if (formData.bookingFeePercent) {
+        fd.append("bookingFeePercent", formData.bookingFeePercent);
+      }
+      if (formData.bookingFeeMinimum) {
+        fd.append("bookingFeeMinimum", formData.bookingFeeMinimum);
+      }
 
       const imageFile = formData.image?.[0];
 
@@ -258,6 +286,34 @@ export default function AddServiceModal({ open, setIsOpen, editData }: Props) {
                 placeholder="Write description..."
                 {...register("description")}
               />
+            </div>
+
+            {/* Trusted Booking Fee override */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid gap-2">
+                <Label className="text-lg text-slate-800">
+                  Booking Fee % (optional override)
+                </Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Leave blank to use the global rate"
+                  className="h-12 border-slate-200 rounded-lg"
+                  {...register("bookingFeePercent")}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label className="text-lg text-slate-800">
+                  Minimum Fee (optional override)
+                </Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  placeholder="Leave blank to use the global rate"
+                  className="h-12 border-slate-200 rounded-lg"
+                  {...register("bookingFeeMinimum")}
+                />
+              </div>
             </div>
 
             {/* Logo */}

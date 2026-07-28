@@ -16,6 +16,8 @@ export interface City {
   cityName: string;
   neighborhoods: string[];
   status?: "active" | "inactive";
+  bookingFeePercent?: number;
+  bookingFeeMinimum?: number;
 }
 
 export interface Country {

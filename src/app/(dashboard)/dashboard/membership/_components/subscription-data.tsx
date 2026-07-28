@@ -367,12 +367,14 @@ export default function SubscriptionManagement() {
                     >
                       <SquarePen className="w-5 h-5" />
                     </button>
-                    <button
-                      onClick={() => handleDelete(subscription._id)}
-                      className="text-slate-600 hover:text-rose-600 transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    {subscription.type !== "free" && (
+                      <button
+                        onClick={() => handleDelete(subscription._id)}
+                        className="text-slate-600 hover:text-rose-600 transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>
@@ -439,17 +441,29 @@ export default function SubscriptionManagement() {
               {/* Type */}
               <div className="grid gap-2">
                 <Label className="text-lg text-slate-800">Type</Label>
-                <Select value={formType} onValueChange={setFormType}>
+                <Select
+                  value={formType}
+                  onValueChange={setFormType}
+                  disabled={editData?.type === "free"}
+                >
                   <SelectTrigger className="h-12 border-slate-200 rounded-lg">
                     <SelectValue placeholder="Select Membership type" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="free">Free / Non-Member</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
                     <SelectItem value="quarterly">Quarterly</SelectItem>
                     <SelectItem value="yearly">Yearly</SelectItem>
                     <SelectItem value="annual">Annual</SelectItem>
                   </SelectContent>
                 </Select>
+                {editData?.type === "free" && (
+                  <p className="text-sm text-slate-500">
+                    This is the platform&apos;s default non-member rate and
+                    can&apos;t be retyped or deleted — only its fee, minimum,
+                    title, and copy can be edited.
+                  </p>
+                )}
               </div>
 
               {/* Title */}
