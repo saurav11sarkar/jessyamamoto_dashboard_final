@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight, EyeIcon, Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import {
   Dialog,
@@ -17,6 +17,14 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Label } from "@/components/ui/label"
 import { useDebounce } from 'use-debounce'
 
 // Define types
@@ -89,15 +97,24 @@ type BookingResponse = {
   meta: Meta
 }
 
+const RESOLUTION_OPTIONS = [
+  { value: "completed", label: "Resolve — Mark Completed" },
+  { value: "confirmed", label: "Resolve — Keep Confirmed" },
+  { value: "cancelled", label: "Resolve — Cancel & Refund" },
+] as const
+
 const BookingData = () => {
   const session = useSession()
   const token = session?.data?.user?.accessToken || ""
+  const queryClient = useQueryClient()
 
   const [page, setPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
   const [debouncedSearchTerm] = useDebounce(searchTerm, 500)
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [resolutionStatus, setResolutionStatus] = useState<string>("completed")
+  const [resolutionNotes, setResolutionNotes] = useState("")
 
   const { data, isLoading } = useQuery<BookingResponse>({
     queryKey: ["booking", page, debouncedSearchTerm],
@@ -113,6 +130,42 @@ const BookingData = () => {
       )
       if (!res.ok) throw new Error("Failed to fetch bookings")
       return res.json()
+    },
+  })
+
+  const resolveDisputeMutation = useMutation({
+    mutationFn: async ({
+      bookingId,
+      status,
+      notes,
+    }: {
+      bookingId: string
+      status: string
+      notes: string
+    }) => {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_API_URL}/booking/${bookingId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status, disputeResolutionNotes: notes }),
+        }
+      )
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.message || "Failed to resolve dispute")
+      return result
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["booking"] })
+      setIsModalOpen(false)
+      setSelectedBooking(null)
+      setResolutionNotes("")
+    },
+    onError: (error: Error) => {
+      window.alert(error.message || "Failed to resolve dispute")
     },
   })
 
@@ -192,7 +245,12 @@ const BookingData = () => {
                     <Button
                       size="sm"
                       className="text-white py-1 px-2 rounded-md bg-[#3ee0cf] hover:bg-[#3ee0cf]/80 transition-colors"
-                      onClick={() => { setSelectedBooking(b); setIsModalOpen(true) }}
+                      onClick={() => {
+                        setSelectedBooking(b)
+                        setResolutionStatus("completed")
+                        setResolutionNotes("")
+                        setIsModalOpen(true)
+                      }}
                     >
                       <EyeIcon className="w-5 h-5 text-white" />
                     </Button>
@@ -280,6 +338,50 @@ const BookingData = () => {
                 <div className="rounded-lg border border-purple-200 bg-purple-50 p-3 text-sm text-purple-900">
                   <p className="font-semibold">Dispute reason</p>
                   <p className="mt-1">{selectedBooking.disputeReason}</p>
+                </div>
+              )}
+
+              {selectedBooking?.status === "disputed" && (
+                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="font-semibold text-slate-900">Resolve this dispute</p>
+                  <div className="space-y-1.5">
+                    <Label>Outcome</Label>
+                    <Select value={resolutionStatus} onValueChange={setResolutionStatus}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {RESOLUTION_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Resolution notes (sent to both parties)</Label>
+                    <textarea
+                      value={resolutionNotes}
+                      onChange={(e) => setResolutionNotes(e.target.value)}
+                      placeholder="Explain the outcome and why..."
+                      className="min-h-[90px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                    />
+                  </div>
+                  <Button
+                    className="bg-[#3ee0cf] hover:bg-[#3ee0cf]/80 text-white"
+                    disabled={!resolutionNotes.trim() || resolveDisputeMutation.isPending}
+                    onClick={() =>
+                      selectedBooking &&
+                      resolveDisputeMutation.mutate({
+                        bookingId: selectedBooking._id,
+                        status: resolutionStatus,
+                        notes: resolutionNotes.trim(),
+                      })
+                    }
+                  >
+                    {resolveDisputeMutation.isPending ? "Resolving..." : "Resolve Dispute"}
+                  </Button>
                 </div>
               )}
             </div>
