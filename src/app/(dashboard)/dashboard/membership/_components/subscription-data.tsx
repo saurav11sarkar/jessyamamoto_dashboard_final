@@ -73,8 +73,8 @@ export default function SubscriptionManagement() {
   const [formType, setFormType] = React.useState("");
   const [formTitle, setFormTitle] = React.useState("");
   const [formPrice, setFormPrice] = React.useState("");
-  const [formBookingFeePercent, setFormBookingFeePercent] = React.useState("8.88");
-  const [formBookingFeeMinimum, setFormBookingFeeMinimum] = React.useState("1.25");
+  const [formBookingFeePercent, setFormBookingFeePercent] = React.useState("12.5");
+  const [formBookingFeeMinimum, setFormBookingFeeMinimum] = React.useState("3");
   const [formDescription, setFormDescription] = React.useState("");
   const [formContent, setFormContent] = React.useState("");
 
@@ -235,8 +235,8 @@ export default function SubscriptionManagement() {
     setFormType("");
     setFormTitle("");
     setFormPrice("");
-    setFormBookingFeePercent("8.88");
-    setFormBookingFeeMinimum("1.25");
+    setFormBookingFeePercent("12.5");
+    setFormBookingFeeMinimum("3");
     setFormDescription("");
     setFormContent("");
     setEditData(null);
@@ -251,8 +251,12 @@ export default function SubscriptionManagement() {
     setFormType(subscription.type);
     setFormTitle(subscription.title);
     setFormPrice(String(subscription.price));
-    setFormBookingFeePercent(String(subscription.bookingFeePercent ?? 8.88));
-    setFormBookingFeeMinimum(String(subscription.bookingFeeMinimum ?? 1.25));
+    setFormBookingFeePercent(
+      String(subscription.bookingFeePercent ?? (subscription.type === "free" ? 25 : 12.5)),
+    );
+    setFormBookingFeeMinimum(
+      String(subscription.bookingFeeMinimum ?? (subscription.type === "free" ? 5 : 3)),
+    );
     setFormDescription(subscription.description);
     setFormContent(subscription.content);
     setIsOpen(true);
@@ -350,8 +354,8 @@ export default function SubscriptionManagement() {
                   ${subscription.price}
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600">
-                  {subscription.bookingFeePercent ?? 8.88}% / min $
-                  {subscription.bookingFeeMinimum ?? 1.25}
+                  {subscription.bookingFeePercent ?? (subscription.type === "free" ? 25 : 12.5)}% / min $
+                  {subscription.bookingFeeMinimum ?? (subscription.type === "free" ? 5 : 3)}
                 </TableCell>
                 <TableCell className="py-6 text-center px-8 text-slate-600 max-w-[200px] truncate">
                   {subscription.description}
@@ -452,7 +456,7 @@ export default function SubscriptionManagement() {
                   <SelectContent>
                     <SelectItem value="free">Free / Non-Member</SelectItem>
                     <SelectItem value="monthly">Monthly</SelectItem>
-                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="6month">6 Month</SelectItem>
                     <SelectItem value="yearly">Yearly</SelectItem>
                     <SelectItem value="annual">Annual</SelectItem>
                   </SelectContent>
@@ -497,7 +501,7 @@ export default function SubscriptionManagement() {
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="8.88"
+                    placeholder="12.5"
                     className="h-12 border-slate-200 rounded-lg"
                     value={formBookingFeePercent}
                     onChange={(e) => setFormBookingFeePercent(e.target.value)}
@@ -510,7 +514,7 @@ export default function SubscriptionManagement() {
                   <Input
                     type="number"
                     step="0.01"
-                    placeholder="1.25"
+                    placeholder="3"
                     className="h-12 border-slate-200 rounded-lg"
                     value={formBookingFeeMinimum}
                     onChange={(e) => setFormBookingFeeMinimum(e.target.value)}
