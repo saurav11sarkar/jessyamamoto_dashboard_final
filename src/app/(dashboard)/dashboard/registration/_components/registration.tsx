@@ -166,7 +166,9 @@ const Registration = () => {
                           : "bg-yellow-100 text-yellow-800"
                     }`}
                   >
-                    {user.userStatus || "pending"}
+                    {user.userStatus === "panding"
+                      ? "pending"
+                      : user.userStatus || "pending"}
                   </span>
                 </TableCell>
                 <TableCell className="py-6 px-8">
@@ -265,7 +267,12 @@ const Registration = () => {
               </div>
               <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                 <p><strong>Role:</strong> {selectedUser.role}</p>
-                <p><strong>Status:</strong> {selectedUser.userStatus || "pending"}</p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  {selectedUser.userStatus === "panding"
+                    ? "pending"
+                    : selectedUser.userStatus || "pending"}
+                </p>
                 <p><strong>Phone:</strong> {selectedUser.phone || "N/A"}</p>
                 <p><strong>City:</strong> {selectedUser.city || "N/A"}</p>
                 <p><strong>Country:</strong> {selectedUser.countery || "N/A"}</p>
