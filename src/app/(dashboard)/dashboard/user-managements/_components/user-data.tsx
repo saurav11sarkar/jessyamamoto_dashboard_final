@@ -192,7 +192,7 @@ const UserData = () => {
                       <span className="text-slate-400 text-sm">Approved</span>
                     ) : (
                       <select
-                        value={user.userStatus || "panding"}
+                        value={user.userStatus === "panding" ? "pending" : user.userStatus || "pending"}
                         onChange={(e) =>
                           handleStatusChange(user._id, e.target.value)
                         }
@@ -206,7 +206,7 @@ const UserData = () => {
         }
       `}
                       >
-                        <option value="panding">Pending</option>
+                        <option value="pending">Pending</option>
                         <option value="approved">Approved</option>
                         <option value="reject">Reject</option>
                       </select>
@@ -312,7 +312,10 @@ const UserData = () => {
                   <strong>User Role:</strong> {selectedUser.role}
                 </p>
                 <p>
-                  <strong>User Status:</strong> {selectedUser.userStatus}
+                  <strong>User Status:</strong>{" "}
+                  {selectedUser.userStatus === "panding"
+                    ? "Pending"
+                    : selectedUser.userStatus || "Pending"}
                 </p>
                 <p>
                   <strong>Account Status:</strong> {selectedUser.status}

@@ -158,6 +158,7 @@ export default function AmbassadorPanel() {
       case "approved":
         return "bg-green-100 text-green-700";
       case "panding":
+      case "pending":
         return "bg-yellow-100 text-yellow-700";
       case "reject":
         return "bg-red-100 text-red-700";
@@ -269,7 +270,7 @@ export default function AmbassadorPanel() {
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${statusColor(p.userStatus || "")}`}
                     >
-                      {p.userStatus || "pending"}
+                      {p.userStatus === "panding" ? "pending" : p.userStatus || "pending"}
                     </span>
                   </TableCell>
                   <TableCell className="text-center text-slate-600">
